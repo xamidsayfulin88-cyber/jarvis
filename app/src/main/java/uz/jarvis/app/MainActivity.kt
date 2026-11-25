@@ -21,7 +21,6 @@ import android.widget.Toast
 class MainActivity : Activity() {
 
     private lateinit var groq: EditText
-    private lateinit var pico: EditText
     private lateinit var model: EditText
     private lateinit var lang: EditText
 
@@ -57,9 +56,6 @@ class MainActivity : Activity() {
         root.addView(label("Groq API kaliti (gsk_...)"))
         groq = field("gsk_...", Prefs.get(this, Prefs.GROQ_KEY), true); root.addView(groq)
 
-        root.addView(label("Picovoice AccessKey"))
-        pico = field("AccessKey", Prefs.get(this, Prefs.PICO_KEY), true); root.addView(pico)
-
         root.addView(label("Groq modeli"))
         model = field(Prefs.DEFAULT_MODEL, Prefs.get(this, Prefs.MODEL, Prefs.DEFAULT_MODEL), false); root.addView(model)
 
@@ -81,11 +77,21 @@ class MainActivity : Activity() {
             save()
             if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
                 toast("Avval 2-tugma orqali mikrofon ruxsatini bering")
-            } else if (Prefs.get(this, Prefs.PICO_KEY).isBlank()) {
-                toast("Picovoice AccessKey kiriting")
+            } else if (Prefs.get(this, Prefs.GROQ_KEY).isBlank()) {
+                toast("Groq API kalitini kiriting")
             } else {
                 startForegroundService(Intent(this, JarvisService::class.java))
                 toast("Yoqildi. \"Jarvis\" deb chaqiring")
+            }
+        })
+        root.addView(btn("Hozir gapirish (tugma bilan)") {
+            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                toast("Avval 2-tugma orqali mikrofon ruxsatini bering")
+            } else {
+                save()
+                startForegroundService(
+                    Intent(this, JarvisService::class.java).setAction(JarvisService.ACTION_LISTEN_NOW)
+                )
             }
         })
         root.addView(btn("O'chirish") {
@@ -98,7 +104,6 @@ class MainActivity : Activity() {
 
     private fun save() {
         Prefs.put(this, Prefs.GROQ_KEY, groq.text.toString().trim())
-        Prefs.put(this, Prefs.PICO_KEY, pico.text.toString().trim())
         Prefs.put(this, Prefs.MODEL, model.text.toString().trim())
         Prefs.put(this, Prefs.LANG, lang.text.toString().trim())
     }

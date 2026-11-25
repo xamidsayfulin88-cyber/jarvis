@@ -9,7 +9,6 @@ object Prefs {
     fun put(c: Context, key: String, value: String) = sp(c).edit().putString(key, value).apply()
 
     const val GROQ_KEY = "groq_key"
-    const val PICO_KEY = "pico_key"
     const val MODEL = "model"
     const val LANG = "lang"
     const val DEFAULT_MODEL = "openai/gpt-oss-20b"
